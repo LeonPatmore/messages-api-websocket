@@ -4,8 +4,45 @@ Resources:
   WebsocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
+      Name: messages-api
       ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.action"
   ConnectRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
+      RouteKey: $connect
       ApiId: !Ref WebsocketApi
+      AuthorizationType: NONE
+      OperationName: ConnectRoute
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref ConnectIntegration
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebsocketApi
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      PayloadFormatVersion: 1.0
+      RequestParameters:
+        "myConnectionIdProperty": "$context.connectionId",
+        "body": $input.body
+      IntegrationUri: https://www.google.co.uk
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+    - ConnectRoute
+    Properties:
+      ApiId: !Ref WebsocketApi
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: Prod
+      DeploymentId: !Ref Deployment
+      ApiId: !Ref WebsocketApi
+
+Outputs:
+   WebSocketURI:
+    Description: "The WSS Protocol URI to connect to"
+    Value: !Join [ '', [ 'wss://', !Ref WebsocketApi, '.execute-api.',!Ref 'AWS::Region','.amazonaws.com/',!Ref 'Stage'] ]
