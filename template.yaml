@@ -18,17 +18,21 @@ Resources:
         - /
         - - integrations
           - !Ref ConnectIntegration
+  ConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: app.onConnect
+      MemorySize: 256
+      Runtime: nodejs12.x
   ConnectIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
       ApiId: !Ref WebsocketApi
-      IntegrationType: HTTP_PROXY
-      IntegrationMethod: ANY
-      PayloadFormatVersion: 1.0
-      RequestParameters:
-        "myConnectionIdProperty": "$context.connectionId",
-        "body": $input.body
-      IntegrationUri: https://www.google.co.uk
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
