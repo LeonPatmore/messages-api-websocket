@@ -1,6 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Resources:
+  AssociationTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: uuid
+        Type: String
+      TableName: Association
   WebsocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
@@ -22,17 +29,58 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: .
-      Handler: app.onConnect
+      Handler: onConnect.handler
       MemorySize: 256
       Runtime: nodejs12.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref AssociationTable
   ConnectIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
       ApiId: !Ref WebsocketApi
-      IntegrationType: AWS_PROXY
+      IntegrationType: AWS
       IntegrationUri:
         Fn::Sub:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
+  ConnectResponse:
+    Type: 'AWS::ApiGatewayV2::IntegrationResponse'
+    Properties:
+      IntegrationId: !Ref ConnectIntegration
+      IntegrationResponseKey: $default
+      TemplateSelectionExpression: $integration.response.statuscode
+      ResponseTemplates:
+        200: {"response": $input.json('$')}
+      ApiId: !Ref WebsocketApi
+  ProcessRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      RouteKey: $default
+      ApiId: !Ref WebsocketApi
+      AuthorizationType: NONE
+      OperationName: ProcessRoute
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref ProcessIntegration
+  ProcessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: onProcess.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref AssociationTable
+  ProcessIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebsocketApi
+      IntegrationType: AWS
+      IntegrationUri:
+        Fn::Sub:
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
@@ -45,6 +93,26 @@ Resources:
       StageName: Prod
       DeploymentId: !Ref Deployment
       ApiId: !Ref WebsocketApi
+      DefaultRouteSettings:
+        LoggingLevel: INFO
+        DetailedMetricsEnabled: true
+        DataTraceEnabled: true
+  ConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebsocketApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ConnectFunction
+      Principal: apigateway.amazonaws.com
+  ProcessPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebsocketApi
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ProcessFunction
+      Principal: apigateway.amazonaws.com
 
 Outputs:
    WebSocketURI:
