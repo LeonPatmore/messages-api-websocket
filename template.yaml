@@ -8,12 +8,14 @@ Resources:
         Name: uuid
         Type: String
       TableName: Association
+  
   WebsocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
       Name: messages-api
       ProtocolType: WEBSOCKET
       RouteSelectionExpression: "$request.body.action"
+
   ConnectRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -21,6 +23,7 @@ Resources:
       ApiId: !Ref WebsocketApi
       AuthorizationType: NONE
       OperationName: ConnectRoute
+      RouteResponseSelectionExpression: $default
       Target: !Join
         - /
         - - integrations
@@ -43,15 +46,22 @@ Resources:
       IntegrationUri:
         Fn::Sub:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
-  ConnectResponse:
+  ConnectRouteResponse:
+    Type: 'AWS::ApiGatewayV2::RouteResponse'
+    Properties:
+      RouteId: !Ref ConnectRoute
+      ApiId: !Ref WebsocketApi
+      RouteResponseKey: $default
+  ConnectIntegrationResponse:
     Type: 'AWS::ApiGatewayV2::IntegrationResponse'
     Properties:
       IntegrationId: !Ref ConnectIntegration
       IntegrationResponseKey: $default
-      TemplateSelectionExpression: $integration.response.statuscode
+      TemplateSelectionExpression: \$default
       ResponseTemplates:
-        200: {"response": $input.json('$')}
+        "$default": "{\"response\": $input.json('$')}"
       ApiId: !Ref WebsocketApi
+  
   ProcessRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -59,6 +69,7 @@ Resources:
       ApiId: !Ref WebsocketApi
       AuthorizationType: NONE
       OperationName: ProcessRoute
+      RouteResponseSelectionExpression: $default
       Target: !Join
         - /
         - - integrations
@@ -78,9 +89,28 @@ Resources:
     Properties:
       ApiId: !Ref WebsocketApi
       IntegrationType: AWS
+      TemplateSelectionExpression: \$default
+      RequestTemplates:
+        "$default": "{\"context\":{\"connectionId\":\"$context.connectionId\"},\"body\":$input.json('$')}"
       IntegrationUri:
         Fn::Sub:
             arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
+  ProcessRouteResponse:
+    Type: 'AWS::ApiGatewayV2::RouteResponse'
+    Properties:
+      RouteId: !Ref ProcessRoute
+      ApiId: !Ref WebsocketApi
+      RouteResponseKey: $default
+  ProcessIntegrationResponse:
+    Type: 'AWS::ApiGatewayV2::IntegrationResponse'
+    Properties:
+      IntegrationId: !Ref ProcessIntegration
+      IntegrationResponseKey: $default
+      TemplateSelectionExpression: \$default
+      ResponseTemplates:
+        "$default": "{\"response\": $input.json('$')}"
+      ApiId: !Ref WebsocketApi
+  
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
@@ -97,6 +127,7 @@ Resources:
         LoggingLevel: INFO
         DetailedMetricsEnabled: true
         DataTraceEnabled: true
+  
   ConnectPermission:
     Type: AWS::Lambda::Permission
     DependsOn:

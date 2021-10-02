@@ -8,6 +8,6 @@ const messagesApiHost = process.env.MESSAGES_API_HOST
 exports.handler = async event => {
     console.log(`Processing`)
     console.log(JSON.stringify(event))
-    console.log(`Connection ID ${event.requestContext.connectionId}`)
-    return { statusCode: 200, body: 'Connected.' };
+    console.log(`Connection ID ${event.context.connectionId}`)
+    return { statusCode: 200, body: `Connected with id ${event.context.connectionId}` };
 };
