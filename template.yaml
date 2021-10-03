@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Resources:
   AssociationTable:
@@ -8,7 +8,7 @@ Resources:
         Name: uuid
         Type: String
       TableName: Association
-  
+
   WebsocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
@@ -44,24 +44,23 @@ Resources:
       ApiId: !Ref WebsocketApi
       IntegrationType: AWS
       IntegrationUri:
-        Fn::Sub:
-            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
   ConnectRouteResponse:
-    Type: 'AWS::ApiGatewayV2::RouteResponse'
+    Type: "AWS::ApiGatewayV2::RouteResponse"
     Properties:
       RouteId: !Ref ConnectRoute
       ApiId: !Ref WebsocketApi
       RouteResponseKey: $default
   ConnectIntegrationResponse:
-    Type: 'AWS::ApiGatewayV2::IntegrationResponse'
+    Type: "AWS::ApiGatewayV2::IntegrationResponse"
     Properties:
       IntegrationId: !Ref ConnectIntegration
       IntegrationResponseKey: $default
       TemplateSelectionExpression: \$default
       ResponseTemplates:
-        "$default": "{\"response\": $input.json('$')}"
+        "$default": '{"response": $input.json(''$'')}'
       ApiId: !Ref WebsocketApi
-  
+
   ProcessRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -91,30 +90,29 @@ Resources:
       IntegrationType: AWS
       TemplateSelectionExpression: \$default
       RequestTemplates:
-        "$default": "{\"context\":{\"connectionId\":\"$context.connectionId\"},\"body\":$input.json('$')}"
+        "$default": '{"context":{"connectionId":"$context.connectionId"},"body":$input.json(''$'')}'
       IntegrationUri:
-        Fn::Sub:
-            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
   ProcessRouteResponse:
-    Type: 'AWS::ApiGatewayV2::RouteResponse'
+    Type: "AWS::ApiGatewayV2::RouteResponse"
     Properties:
       RouteId: !Ref ProcessRoute
       ApiId: !Ref WebsocketApi
       RouteResponseKey: $default
   ProcessIntegrationResponse:
-    Type: 'AWS::ApiGatewayV2::IntegrationResponse'
+    Type: "AWS::ApiGatewayV2::IntegrationResponse"
     Properties:
       IntegrationId: !Ref ProcessIntegration
       IntegrationResponseKey: $default
       TemplateSelectionExpression: \$default
       ResponseTemplates:
-        "$default": "{\"response\": $input.json('$')}"
+        "$default": '{"response": $input.json(''$'')}'
       ApiId: !Ref WebsocketApi
-  
+
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
-    - ConnectRoute
+      - ConnectRoute
     Properties:
       ApiId: !Ref WebsocketApi
   Stage:
@@ -127,7 +125,7 @@ Resources:
         LoggingLevel: INFO
         DetailedMetricsEnabled: true
         DataTraceEnabled: true
-  
+
   ConnectPermission:
     Type: AWS::Lambda::Permission
     DependsOn:
@@ -146,6 +144,17 @@ Resources:
       Principal: apigateway.amazonaws.com
 
 Outputs:
-   WebSocketURI:
+  WebSocketURI:
     Description: "The WSS Protocol URI to connect to"
-    Value: !Join [ '', [ 'wss://', !Ref WebsocketApi, '.execute-api.',!Ref 'AWS::Region','.amazonaws.com/',!Ref 'Stage'] ]
+    Value:
+      !Join [
+        "",
+        [
+          "wss://",
+          !Ref WebsocketApi,
+          ".execute-api.",
+          !Ref "AWS::Region",
+          ".amazonaws.com/",
+          !Ref "Stage",
+        ],
+      ]
