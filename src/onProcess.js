@@ -1,5 +1,4 @@
 const AWS = require("aws-sdk");
-const http = require("http");
 const axios = require("axios").default;
 
 const dynamoDBClient = new AWS.DynamoDB.DocumentClient({
