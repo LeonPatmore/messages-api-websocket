@@ -1,160 +1,160 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  AssociationTable:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      PrimaryKey:
-        Name: uuid
-        Type: String
-      TableName: Association
+    AssociationTable:
+        Type: AWS::Serverless::SimpleTable
+        Properties:
+            PrimaryKey:
+                Name: uuid
+                Type: String
+            TableName: Association
 
-  WebsocketApi:
-    Type: AWS::ApiGatewayV2::Api
-    Properties:
-      Name: messages-api
-      ProtocolType: WEBSOCKET
-      RouteSelectionExpression: "$request.body.action"
+    WebsocketApi:
+        Type: AWS::ApiGatewayV2::Api
+        Properties:
+            Name: messages-api
+            ProtocolType: WEBSOCKET
+            RouteSelectionExpression: '$request.body.action'
 
-  ConnectRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      RouteKey: $connect
-      ApiId: !Ref WebsocketApi
-      AuthorizationType: NONE
-      OperationName: ConnectRoute
-      RouteResponseSelectionExpression: $default
-      Target: !Join
-        - /
-        - - integrations
-          - !Ref ConnectIntegration
-  ConnectFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: .
-      Handler: src.onConnect.handler
-      MemorySize: 256
-      Runtime: nodejs12.x
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref AssociationTable
-  ConnectIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref WebsocketApi
-      IntegrationType: AWS
-      IntegrationUri:
-        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
-  ConnectRouteResponse:
-    Type: "AWS::ApiGatewayV2::RouteResponse"
-    Properties:
-      RouteId: !Ref ConnectRoute
-      ApiId: !Ref WebsocketApi
-      RouteResponseKey: $default
-  ConnectIntegrationResponse:
-    Type: "AWS::ApiGatewayV2::IntegrationResponse"
-    Properties:
-      IntegrationId: !Ref ConnectIntegration
-      IntegrationResponseKey: $default
-      TemplateSelectionExpression: \$default
-      ResponseTemplates:
-        "$default": '{"response": $input.json(''$'')}'
-      ApiId: !Ref WebsocketApi
+    ConnectRoute:
+        Type: AWS::ApiGatewayV2::Route
+        Properties:
+            RouteKey: $connect
+            ApiId: !Ref WebsocketApi
+            AuthorizationType: NONE
+            OperationName: ConnectRoute
+            RouteResponseSelectionExpression: $default
+            Target: !Join
+                - /
+                - - integrations
+                  - !Ref ConnectIntegration
+    ConnectFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: src.onConnect.handler
+            MemorySize: 256
+            Runtime: nodejs12.x
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref AssociationTable
+    ConnectIntegration:
+        Type: AWS::ApiGatewayV2::Integration
+        Properties:
+            ApiId: !Ref WebsocketApi
+            IntegrationType: AWS
+            IntegrationUri:
+                Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
+    ConnectRouteResponse:
+        Type: 'AWS::ApiGatewayV2::RouteResponse'
+        Properties:
+            RouteId: !Ref ConnectRoute
+            ApiId: !Ref WebsocketApi
+            RouteResponseKey: $default
+    ConnectIntegrationResponse:
+        Type: 'AWS::ApiGatewayV2::IntegrationResponse'
+        Properties:
+            IntegrationId: !Ref ConnectIntegration
+            IntegrationResponseKey: $default
+            TemplateSelectionExpression: \$default
+            ResponseTemplates:
+                '$default': '{"response": $input.json(''$'')}'
+            ApiId: !Ref WebsocketApi
 
-  ProcessRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      RouteKey: $default
-      ApiId: !Ref WebsocketApi
-      AuthorizationType: NONE
-      OperationName: ProcessRoute
-      RouteResponseSelectionExpression: $default
-      Target: !Join
-        - /
-        - - integrations
-          - !Ref ProcessIntegration
-  ProcessFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: .
-      Handler: src.onProcess.handler
-      MemorySize: 256
-      Runtime: nodejs12.x
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref AssociationTable
-  ProcessIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref WebsocketApi
-      IntegrationType: AWS
-      TemplateSelectionExpression: \$default
-      RequestTemplates:
-        "$default": '{"context":{"connectionId":"$context.connectionId"},"body":$input.json(''$'')}'
-      IntegrationUri:
-        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
-  ProcessRouteResponse:
-    Type: "AWS::ApiGatewayV2::RouteResponse"
-    Properties:
-      RouteId: !Ref ProcessRoute
-      ApiId: !Ref WebsocketApi
-      RouteResponseKey: $default
-  ProcessIntegrationResponse:
-    Type: "AWS::ApiGatewayV2::IntegrationResponse"
-    Properties:
-      IntegrationId: !Ref ProcessIntegration
-      IntegrationResponseKey: $default
-      TemplateSelectionExpression: \$default
-      ResponseTemplates:
-        "$default": '{"response": $input.json(''$'')}'
-      ApiId: !Ref WebsocketApi
+    ProcessRoute:
+        Type: AWS::ApiGatewayV2::Route
+        Properties:
+            RouteKey: $default
+            ApiId: !Ref WebsocketApi
+            AuthorizationType: NONE
+            OperationName: ProcessRoute
+            RouteResponseSelectionExpression: $default
+            Target: !Join
+                - /
+                - - integrations
+                  - !Ref ProcessIntegration
+    ProcessFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: src.onProcess.handler
+            MemorySize: 256
+            Runtime: nodejs12.x
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref AssociationTable
+    ProcessIntegration:
+        Type: AWS::ApiGatewayV2::Integration
+        Properties:
+            ApiId: !Ref WebsocketApi
+            IntegrationType: AWS
+            TemplateSelectionExpression: \$default
+            RequestTemplates:
+                '$default': '{"context":{"connectionId":"$context.connectionId"},"body":$input.json(''$'')}'
+            IntegrationUri:
+                Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
+    ProcessRouteResponse:
+        Type: 'AWS::ApiGatewayV2::RouteResponse'
+        Properties:
+            RouteId: !Ref ProcessRoute
+            ApiId: !Ref WebsocketApi
+            RouteResponseKey: $default
+    ProcessIntegrationResponse:
+        Type: 'AWS::ApiGatewayV2::IntegrationResponse'
+        Properties:
+            IntegrationId: !Ref ProcessIntegration
+            IntegrationResponseKey: $default
+            TemplateSelectionExpression: \$default
+            ResponseTemplates:
+                '$default': '{"response": $input.json(''$'')}'
+            ApiId: !Ref WebsocketApi
 
-  Deployment:
-    Type: AWS::ApiGatewayV2::Deployment
-    DependsOn:
-      - ConnectRoute
-    Properties:
-      ApiId: !Ref WebsocketApi
-  Stage:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      StageName: Prod
-      DeploymentId: !Ref Deployment
-      ApiId: !Ref WebsocketApi
-      DefaultRouteSettings:
-        LoggingLevel: INFO
-        DetailedMetricsEnabled: true
-        DataTraceEnabled: true
+    Deployment:
+        Type: AWS::ApiGatewayV2::Deployment
+        DependsOn:
+            - ConnectRoute
+        Properties:
+            ApiId: !Ref WebsocketApi
+    Stage:
+        Type: AWS::ApiGatewayV2::Stage
+        Properties:
+            StageName: Prod
+            DeploymentId: !Ref Deployment
+            ApiId: !Ref WebsocketApi
+            DefaultRouteSettings:
+                LoggingLevel: INFO
+                DetailedMetricsEnabled: true
+                DataTraceEnabled: true
 
-  ConnectPermission:
-    Type: AWS::Lambda::Permission
-    DependsOn:
-      - WebsocketApi
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref ConnectFunction
-      Principal: apigateway.amazonaws.com
-  ProcessPermission:
-    Type: AWS::Lambda::Permission
-    DependsOn:
-      - WebsocketApi
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref ProcessFunction
-      Principal: apigateway.amazonaws.com
+    ConnectPermission:
+        Type: AWS::Lambda::Permission
+        DependsOn:
+            - WebsocketApi
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref ConnectFunction
+            Principal: apigateway.amazonaws.com
+    ProcessPermission:
+        Type: AWS::Lambda::Permission
+        DependsOn:
+            - WebsocketApi
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref ProcessFunction
+            Principal: apigateway.amazonaws.com
 
 Outputs:
-  WebSocketURI:
-    Description: "The WSS Protocol URI to connect to"
-    Value:
-      !Join [
-        "",
-        [
-          "wss://",
-          !Ref WebsocketApi,
-          ".execute-api.",
-          !Ref "AWS::Region",
-          ".amazonaws.com/",
-          !Ref "Stage",
-        ],
-      ]
+    WebSocketURI:
+        Description: 'The WSS Protocol URI to connect to'
+        Value:
+            !Join [
+                '',
+                [
+                    'wss://',
+                    !Ref WebsocketApi,
+                    '.execute-api.',
+                    !Ref 'AWS::Region',
+                    '.amazonaws.com/',
+                    !Ref 'Stage',
+                ],
+            ]

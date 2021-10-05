@@ -1,17 +1,21 @@
-const AWS = require("aws-sdk");
-const axios = require("axios").default;
+const AWS = require('aws-sdk');
+const axios = require('axios').default;
+const MessagesApiMtProcessor = require('./messages-api-mt-processor');
+const messagesApiClient = require('./messages-api/messages-api-client-environment');
 
 const dynamoDBClient = new AWS.DynamoDB.DocumentClient({
-    apiVersion: "2012-08-10",
+    apiVersion: '2012-08-10',
     region: process.env.AWS_REGION,
 });
 const tableName = process.env.TABLE_NAME;
-const messagesApiHost = process.env.MESSAGES_API_HOST;
+
+const messagesApiMtProcessor = new MessagesApiMtProcessor(messagesApiClient);
 
 exports.handler = async (event) => {
-    console.log(`Processing`);
-    console.log(JSON.stringify(event));
-    console.log(`Connection ID ${event.context.connectionId}`);
+    console.log(`Processing event [ ${JSON.stringify(event)} ]`);
+
+    const connectionId = event.context.connectionId;
+    console.log(`Connection ID ${connectionId}`);
 
     const authentication = event.authentication;
     console.log(`Authentication: ${authentication}`);
@@ -19,13 +23,7 @@ exports.handler = async (event) => {
     const body = event.body;
     console.log(`Body ${body}`);
 
-    const options = {
-        host: messagesApiHost,
-        path: "v0.1/messages",
-        method: "POST",
-    };
-
-    axios.post(`https://${messagesApiHost}/v0.1/messages`);
+    proces;
 
     return {
         statusCode: 200,
