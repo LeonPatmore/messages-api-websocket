@@ -9,7 +9,7 @@ class MessagesApiClient {
         const res = await axios.post(`https://${this.host}/v1/messages`, body, {
             headers: { Authorization: auth },
         });
-        return res.data.message_uuid;
+        return res;
     }
 }
 
