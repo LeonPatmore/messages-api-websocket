@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 const {
     SEND_MESSAGES_API_MT_EVENT,
     MessagesApiClientBus,
-} = require('../../src/messages-api/messages-api-client-bus');
+} = require('../../src/messages-api-client/messages-api-client-bus');
 const nock = require('nock');
 
 const testBus = new EventEmitter();

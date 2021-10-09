@@ -1,13 +1,14 @@
+const {
+    SEND_MESSAGES_API_MT_EVENT,
+} = require('./messages-api-client/messages-api-client-bus');
+
 class MessagesApiMtProcessor {
-    constructor(messagesApiClient) {
-        this.messagesApiClient = messagesApiClient;
+    constructor(eventBus) {
+        this.eventBus = eventBus;
     }
 
     async startProcessing(request) {
-        const uuid = messagesApiClient.sendV1(
-            request.body,
-            request.authentication
-        );
+        eventBus.emit(SEND_MESSAGES_API_MT_EVENT);
     }
 
     async persist() {
