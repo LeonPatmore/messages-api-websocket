@@ -12,7 +12,8 @@ exports.handler = async (event) => {
             httpBody: res.data,
         };
     } catch (error) {
-        return handleError(error);
+        throw error;
+        // return handleError(error);
     }
 };
 

@@ -41,8 +41,10 @@ test('Test successful flow', async () => {
     whenMessagesApiClientRespondsSuccessfully();
     whenPersistingIsSuccessful();
     const res = await messagesApiMtProcessor.process({
-        auth: 'Bearer 123',
-        body: 'body',
+        input: {
+            auth: 'Bearer 123',
+            body: 'body',
+        },
         context: {
             connectionId: '123',
         },

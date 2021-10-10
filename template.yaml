@@ -91,7 +91,7 @@ Resources:
             IntegrationType: AWS
             TemplateSelectionExpression: \$default
             RequestTemplates:
-                '$default': '{"context":{"connectionId":"$context.connectionId"},"body":$input.json(''$'')}'
+                '$default': '{"context":{"connectionId":"$context.connectionId"},"input":$input.json(''$'')}'
             IntegrationUri:
                 Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProcessFunction.Arn}/invocations
     ProcessRouteResponse:

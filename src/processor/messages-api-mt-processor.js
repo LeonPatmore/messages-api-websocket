@@ -17,25 +17,29 @@ class MessagesApiMtProcessor {
     }
 
     async process(request) {
-        const res = await this.sendRequestToMessagesApi(request);
+        const res = await this.sendRequestToMessagesApi(
+            request.input.body,
+            request.input.auth
+        );
         await this.persistUuid(res.data.uuid, request.context.connectionId);
         return res;
     }
 
-    async sendRequestToMessagesApi(request) {
+    async sendRequestToMessagesApi(body, auth) {
         return await new Promise((resolve, reject) => {
             this.eventBus.emit(
                 SEND_MESSAGES_API_MT_EVENT,
-                request.body,
-                request.auth,
+                body,
+                auth,
                 resolve,
                 reject
             );
         }).catch((error) => {
-            throw new FailedToSendMessagesApi(
-                error.response.status,
-                error.response.data
-            );
+            throw error;
+            // throw new FailedToSendMessagesApi(
+            //     error.response.status,
+            //     error.response.data
+            // );
         });
     }
 
