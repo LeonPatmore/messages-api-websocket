@@ -39,7 +39,9 @@ test('Test successful flow', async () => {
     const res = await messagesApiMtProcessor.process({
         auth: 'Bearer 123',
         body: 'body',
-        connectionId: '123',
+        context: {
+            connectionId: '123',
+        },
     });
 
     expect(res).toEqual(MESSAGES_SUCCESS_RESPONSE);

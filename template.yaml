@@ -83,6 +83,7 @@ Resources:
             Environment:
                 Variables:
                     TABLE_NAME: !Ref AssociationTable
+                    MESSAGES_API_HOST: api.nexmo.com
     ProcessIntegration:
         Type: AWS::ApiGatewayV2::Integration
         Properties:

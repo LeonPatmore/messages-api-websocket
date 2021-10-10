@@ -1,3 +1,3 @@
-exports.handler = async (event) => {
+exports.handler = async () => {
     return { statusCode: 200, body: 'Connected.' };
 };

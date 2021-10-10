@@ -9,7 +9,7 @@ class MessagesApiMtProcessor {
 
     async process(request) {
         const res = await this.sendRequestToMessagesApi(request);
-        await this.persistUuid(res.data.uuid, request.connectionId);
+        await this.persistUuid(res.data.uuid, request.context.connectionId);
         return res.data;
     }
 
