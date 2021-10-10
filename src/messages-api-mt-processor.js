@@ -7,16 +7,34 @@ class MessagesApiMtProcessor {
         this.eventBus = eventBus;
     }
 
-    async startProcessing(request) {
-        eventBus.emit(SEND_MESSAGES_API_MT_EVENT);
+    async process(request) {
+        const res = await this.sendRequestToMessagesApi(request);
+        await this.persistUuid(res.data.uuid, request.connectionId);
+        return res.data;
     }
 
-    async persist() {
-        // Now we want to persist uuid and connection id
+    async sendRequestToMessagesApi(request) {
+        return await new Promise((resolve, reject) => {
+            this.eventBus.emit(
+                SEND_MESSAGES_API_MT_EVENT,
+                request.body,
+                request.auth,
+                resolve,
+                reject
+            );
+        });
     }
 
-    async return() {
-        // Now return the sync response.
+    async persistUuid(uuid, connectionId) {
+        return await new Promise((resolve, reject) => {
+            this.eventBus.emit(
+                'persist-uuid-connection',
+                uuid,
+                connectionId,
+                resolve,
+                reject
+            );
+        });
     }
 }
 

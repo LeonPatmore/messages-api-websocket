@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const axios = require('axios').default;
 const MessagesApiMtProcessor = require('./messages-api-mt-processor');
-const messagesApiClient = require('./messages-api/messages-api-client-environment');
+const messagesApiClient = require('./messages-api-client/messages-api-client-environment');
 
 const dynamoDBClient = new AWS.DynamoDB.DocumentClient({
     apiVersion: '2012-08-10',
@@ -23,7 +23,10 @@ exports.handler = async (event) => {
     const body = event.body;
     console.log(`Body ${body}`);
 
-    proces;
+    messagesApiMtProcessor.process({
+        body: body,
+        authentication: authentication,
+    });
 
     return {
         statusCode: 200,
