@@ -1,6 +1,6 @@
 const {
     SEND_MESSAGES_API_MT_EVENT,
-} = require('./messages-api-client/messages-api-client-bus');
+} = require('../messages-api-client/messages-api-client-bus');
 
 class MessagesApiMtProcessor {
     constructor(eventBus) {

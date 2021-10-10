@@ -1,4 +1,4 @@
-const MessagesApiMtProcessor = require('../src/messages-api-mt-processor');
+const MessagesApiMtProcessor = require('../../src/processor/messages-api-mt-processor');
 const EventEmitter = require('events');
 
 var testBus;
