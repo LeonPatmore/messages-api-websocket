@@ -32,7 +32,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: src.onConnect.handler
+            Handler: onConnect.handler
             MemorySize: 256
             Runtime: nodejs12.x
             Environment:
@@ -77,7 +77,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: src.onProcess.handler
+            Handler: onProcess.handler
             MemorySize: 256
             Runtime: nodejs12.x
             Environment:

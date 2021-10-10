@@ -2,6 +2,15 @@ const {
     SEND_MESSAGES_API_MT_EVENT,
 } = require('../messages-api-client/messages-api-client-bus');
 
+class HttpError extends Error {
+    constructor(status, body) {
+        this.status = status;
+        this.body = body;
+    }
+}
+
+class FailedToSendMessagesApi extends HttpError {}
+
 class MessagesApiMtProcessor {
     constructor(eventBus) {
         this.eventBus = eventBus;
@@ -10,7 +19,7 @@ class MessagesApiMtProcessor {
     async process(request) {
         const res = await this.sendRequestToMessagesApi(request);
         await this.persistUuid(res.data.uuid, request.context.connectionId);
-        return res.data;
+        return res;
     }
 
     async sendRequestToMessagesApi(request) {
@@ -21,6 +30,11 @@ class MessagesApiMtProcessor {
                 request.auth,
                 resolve,
                 reject
+            );
+        }).catch((error) => {
+            throw new FailedToSendMessagesApi(
+                error.response.status,
+                error.response.data
             );
         });
     }
@@ -38,4 +52,4 @@ class MessagesApiMtProcessor {
     }
 }
 
-module.exports = MessagesApiMtProcessor;
+module.exports = { MessagesApiMtProcessor, FailedToSendMessagesApi };

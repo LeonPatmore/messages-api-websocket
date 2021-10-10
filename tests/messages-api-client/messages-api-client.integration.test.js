@@ -2,7 +2,9 @@
  * Used for testing integration with the real messages api. Disabled by default.
  */
 
-const MessagesApiClient = require('../src/messages-api/messages-api-client');
+const {
+    MessagesApiClient,
+} = require('../../src/messages-api-client/messages-api-client');
 
 const AUTH = '';
 const TO_NUMBER = '';

@@ -31,6 +31,7 @@ test('Test a successful message', async () => {
         );
     });
     expect(res.data.uuid).toEqual(UUID);
+    expect(res.status).toEqual(200);
 });
 
 test('Test a 401 throws an error', async () => {

@@ -1,4 +1,6 @@
-const MessagesApiMtProcessor = require('../../src/processor/messages-api-mt-processor');
+const {
+    MessagesApiMtProcessor,
+} = require('../../src/processor/messages-api-mt-processor');
 const EventEmitter = require('events');
 
 var testBus;
@@ -12,6 +14,7 @@ beforeEach(() => {
 const MESSAGES_SUCCESS_RESPONSE = {
     uuid: 'abc123',
 };
+const MESSAGES_SUCCESS_STATUS_CODE = 202;
 
 function whenMessagesApiClientRespondsSuccessfully() {
     testBus.on(
@@ -19,6 +22,7 @@ function whenMessagesApiClientRespondsSuccessfully() {
         async (_body, _auth, resolve, _reject) => {
             resolve({
                 data: MESSAGES_SUCCESS_RESPONSE,
+                status: MESSAGES_SUCCESS_STATUS_CODE,
             });
         }
     );
@@ -44,5 +48,6 @@ test('Test successful flow', async () => {
         },
     });
 
-    expect(res).toEqual(MESSAGES_SUCCESS_RESPONSE);
+    expect(res.data).toEqual(MESSAGES_SUCCESS_RESPONSE);
+    expect(res.status).toEqual(MESSAGES_SUCCESS_STATUS_CODE);
 });

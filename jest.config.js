@@ -2,7 +2,7 @@ const config = {
     verbose: true,
     testPathIgnorePatterns: [
         '/node_modules/',
-        'onConnect.integration.test.js',
+        'messages-api-client.integration.test.js',
         '.aws-sam',
     ],
 };
