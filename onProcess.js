@@ -6,11 +6,12 @@ const {
 exports.handler = async (event) => {
     console.log(`Processing event [ ${JSON.stringify(event)} ]`);
     try {
-        const res = await messagesApiMtProcessor.process(event);
-        return {
-            httpStatus: res.status,
-            httpBody: res.data,
-        };
+        return messagesApiMtProcessor.process(event).then((res) => {
+            return Promise.resolve({
+                httpStatus: res.status,
+                httpBody: res.data,
+            });
+        });
     } catch (error) {
         throw error;
         // return handleError(error);

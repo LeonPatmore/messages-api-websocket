@@ -1,0 +1,10 @@
+{
+    "auth": "",
+    "body": {
+        "channel": "sms",
+        "from": "wstest",
+        "to": "",
+        "message_type": "text",
+        "text": "Leon is cool"
+    }
+}

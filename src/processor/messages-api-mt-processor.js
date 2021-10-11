@@ -1,6 +1,7 @@
 const {
     SEND_MESSAGES_API_MT_EVENT,
 } = require('../messages-api-client/messages-api-client-bus');
+const { PERSIST_EVENT_NAME } = require('../persistence/persistence-bus');
 
 class HttpError extends Error {
     constructor(status, body) {
@@ -46,7 +47,7 @@ class MessagesApiMtProcessor {
     async persistUuid(uuid, connectionId) {
         return await new Promise((resolve, reject) => {
             this.eventBus.emit(
-                'persist-uuid-connection',
+                PERSIST_EVENT_NAME,
                 uuid,
                 connectionId,
                 resolve,

@@ -80,6 +80,9 @@ Resources:
             Handler: onProcess.handler
             MemorySize: 256
             Runtime: nodejs12.x
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref AssociationTable
             Environment:
                 Variables:
                     TABLE_NAME: !Ref AssociationTable
@@ -109,6 +112,23 @@ Resources:
             ResponseTemplates:
                 '$default': '{"response": $input.json(''$'')}'
             ApiId: !Ref WebsocketApi
+
+    DisconnectRoute:
+        Type: AWS::ApiGatewayV2::Route
+        Properties:
+            RouteKey: $disconnect
+            ApiId: !Ref WebsocketApi
+            AuthorizationType: NONE
+            OperationName: DisconnectRoute
+            Target: !Join
+                - /
+                - - integrations
+                  - !Ref DisconnectIntegration
+    DisconnectIntegration:
+        Type: AWS::ApiGatewayV2::Integration
+        Properties:
+            ApiId: !Ref WebsocketApi
+            IntegrationType: MOCK
 
     Deployment:
         Type: AWS::ApiGatewayV2::Deployment

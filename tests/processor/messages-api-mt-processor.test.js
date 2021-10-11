@@ -29,12 +29,9 @@ function whenMessagesApiClientRespondsSuccessfully() {
 }
 
 function whenPersistingIsSuccessful() {
-    testBus.on(
-        'persist-uuid-connection',
-        async (_uuid, _connectionId, resolve, _reject) => {
-            resolve();
-        }
-    );
+    testBus.on('persist', async (_uuid, _connectionId, resolve, _reject) => {
+        resolve();
+    });
 }
 
 test('Test successful flow', async () => {
