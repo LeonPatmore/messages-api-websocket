@@ -13,8 +13,7 @@ exports.handler = async (event) => {
             });
         });
     } catch (error) {
-        throw error;
-        // return handleError(error);
+        return handleError(error);
     }
 };
 

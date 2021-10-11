@@ -6,7 +6,7 @@ class DynamoPersistence {
     }
 
     async persist(uuid, connectionId) {
-        await this.client
+        return this.client
             .put({
                 TableName: this.tableName,
                 Item: {

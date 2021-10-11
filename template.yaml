@@ -35,9 +35,6 @@ Resources:
             Handler: onConnect.handler
             MemorySize: 256
             Runtime: nodejs12.x
-            Environment:
-                Variables:
-                    TABLE_NAME: !Ref AssociationTable
     ConnectIntegration:
         Type: AWS::ApiGatewayV2::Integration
         Properties:
@@ -130,10 +127,35 @@ Resources:
             ApiId: !Ref WebsocketApi
             IntegrationType: MOCK
 
+    InboundCallbackFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: processCallback.handler
+            Runtime: nodejs12.x
+            MemorySize: 256
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref AssociationTable
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref AssociationTable
+            Events:
+                HttpPost:
+                    Type: Api
+                    Properties:
+                        Path: '/callback'
+                        Method: post
+
     Deployment:
         Type: AWS::ApiGatewayV2::Deployment
         DependsOn:
+            - ProcessRoute
+            - ConnectRouteResponse
+            - ProcessIntegrationResponse
             - ConnectRoute
+            - ConnectRouteResponse
+            - ConnectIntegrationResponse
         Properties:
             ApiId: !Ref WebsocketApi
     Stage:

@@ -22,7 +22,10 @@ class MessagesApiMtProcessor {
             request.input.body,
             request.input.auth
         );
-        await this.persistUuid(res.data.uuid, request.context.connectionId);
+        await this.persistUuid(
+            res.data.message_uuid,
+            request.context.connectionId
+        );
         return res;
     }
 
