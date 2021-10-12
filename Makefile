@@ -7,6 +7,15 @@ test:
 fmt:
 	npx prettier -c "**"
 
-push: fmt test
-	sam build -u
-	sam deploy --stack-name messages-api-gateway --resolve-s3 --capabilities CAPABILITY_IAM
+clean:
+	rm -Rf build
+
+build: clean fmt test
+	mkdir build
+	cp -R ./src ./build
+	cp template.yaml ./build/template.yaml
+	cp package.json ./build/package.json
+	cd build; sam build -u
+
+push: build
+	cd build; sam deploy --stack-name messages-api-gateway --resolve-s3 --capabilities CAPABILITY_IAM

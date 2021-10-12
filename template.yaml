@@ -32,7 +32,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: onConnect.handler
+            Handler: src/onConnect.handler
             MemorySize: 256
             Runtime: nodejs12.x
     ConnectIntegration:
@@ -74,7 +74,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: onProcess.handler
+            Handler: src/onProcess.handler
             MemorySize: 256
             Runtime: nodejs12.x
             Policies:
@@ -131,15 +131,23 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: processCallback.handler
+            Handler: src/processCallback.handler
             Runtime: nodejs12.x
             MemorySize: 256
             Policies:
                 - DynamoDBCrudPolicy:
                       TableName: !Ref AssociationTable
+                - Version: '2012-10-17'
+                  Statement:
+                      - Effect: Allow
+                        Action:
+                            - execute-api:ManageConnections
+                        Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
             Environment:
                 Variables:
                     TABLE_NAME: !Ref AssociationTable
+                    WEBSOCKET_API_ID: !Ref WebsocketApi
+                    WEBSOCKET_STAGE: Prod
             Events:
                 HttpPost:
                     Type: Api
