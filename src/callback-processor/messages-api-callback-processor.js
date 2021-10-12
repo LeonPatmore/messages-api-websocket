@@ -3,5 +3,9 @@ class MessagesApiCallbackProcessor {
         this.eventBus = eventBus;
     }
 
-    async process() {}
+    async process(request) {}
+
+    getUuidFromRequest(request) {
+        return request.uuid;
+    }
 }
