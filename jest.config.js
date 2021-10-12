@@ -3,7 +3,7 @@ const config = {
     testPathIgnorePatterns: [
         '/node_modules/',
         'messages-api-client.integration.test.js',
-        'persistence-dynamo.integration.test.js',
+        'association-persistence-dynamo.intergration.test.js',
         '.aws-sam',
     ],
 };

@@ -1,5 +1,4 @@
-var AWS = require('aws-sdk');
-class DynamoPersistence {
+class DynamoAssociationPersistence {
     constructor(tableName, client) {
         this.tableName = tableName;
         this.client = client;
@@ -16,6 +15,20 @@ class DynamoPersistence {
             })
             .promise();
     }
+
+    async get(uuid) {
+        return this.client
+            .get({
+                TableName: this.tableName,
+                Key: {
+                    uuid,
+                },
+            })
+            .promise()
+            .then((res) => {
+                return res.Item;
+            });
+    }
 }
 
-module.exports = DynamoPersistence;
+module.exports = DynamoAssociationPersistence;

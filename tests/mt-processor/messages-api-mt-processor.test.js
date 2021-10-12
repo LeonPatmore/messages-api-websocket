@@ -1,6 +1,6 @@
 const {
     MessagesApiMtProcessor,
-} = require('../../src/processor/messages-api-mt-processor');
+} = require('../../src/mt-processor/messages-api-mt-processor');
 const EventEmitter = require('events');
 
 var testBus;
@@ -29,9 +29,12 @@ function whenMessagesApiClientRespondsSuccessfully() {
 }
 
 function whenPersistingIsSuccessful() {
-    testBus.on('persist', async (_uuid, _connectionId, resolve, _reject) => {
-        resolve();
-    });
+    testBus.on(
+        'persist-association',
+        async (_uuid, _connectionId, resolve, _reject) => {
+            resolve();
+        }
+    );
 }
 
 test('Test successful flow', async () => {

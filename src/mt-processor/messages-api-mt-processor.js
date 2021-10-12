@@ -1,7 +1,9 @@
 const {
     SEND_MESSAGES_API_MT_EVENT,
 } = require('../messages-api-client/messages-api-client-bus');
-const { PERSIST_EVENT_NAME } = require('../persistence/persistence-bus');
+const {
+    PERSIST_EVENT_NAME,
+} = require('../association-persistence/association-persistence-bus');
 
 class HttpError extends Error {
     constructor(status, body) {

@@ -3,11 +3,13 @@ const {
 } = require('./messages-api-client/messages-api-client-bus');
 const {
     MessagesApiMtProcessor,
-} = require('./processor/messages-api-mt-processor');
+} = require('./mt-processor/messages-api-mt-processor');
 const AWS = require('aws-sdk');
 const eventBus = require('./event-bus/event-bus');
-const DynamoPersistence = require('./persistence/persistence-dynamo');
-const { PersistenceBus } = require('./persistence/persistence-bus');
+const DynamoPersistence = require('./association-persistence/association-persistence-dynamo');
+const {
+    PersistenceBus,
+} = require('./association-persistence/association-persistence-bus');
 
 const dynamoDBClient = new AWS.DynamoDB.DocumentClient({
     apiVersion: '2012-08-10',
@@ -23,5 +25,6 @@ console.log(`Messages API host: ${messagesApiHost}`);
 new MessagesApiClientBus(process.env.MESSAGES_API_HOST, eventBus);
 
 const messagesApiMtProcessor = new MessagesApiMtProcessor(eventBus);
+const messagesApiCallbackProcessor = new MessagesApiCallbackProcessor(eventBus);
 
-module.exports = messagesApiMtProcessor;
+module.exports = { messagesApiMtProcessor, messagesApiCallbackProcessor };
