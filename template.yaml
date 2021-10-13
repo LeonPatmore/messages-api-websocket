@@ -32,7 +32,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: src/onConnect.handler
+            Handler: src/lambda-handlers/onConnect.handler
             MemorySize: 256
             Runtime: nodejs12.x
     ConnectIntegration:
@@ -74,7 +74,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: src/onProcess.handler
+            Handler: src/lambda-handlers/onProcess.handler
             MemorySize: 256
             Runtime: nodejs12.x
             Policies:
@@ -84,6 +84,9 @@ Resources:
                 Variables:
                     TABLE_NAME: !Ref AssociationTable
                     MESSAGES_API_HOST: api.nexmo.com
+                    INBOUND_STAGE: Prod
+                    INBOUND_API_ID: !Ref InboundCallbackApi
+
     ProcessIntegration:
         Type: AWS::ApiGatewayV2::Integration
         Properties:
@@ -127,11 +130,16 @@ Resources:
             ApiId: !Ref WebsocketApi
             IntegrationType: MOCK
 
+    InboundCallbackApi:
+        Type: AWS::Serverless::Api
+        Properties:
+            StageName: Prod
+
     InboundCallbackFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: .
-            Handler: src/processCallback.handler
+            Handler: src/lambda-handlers/processCallback.handler
             Runtime: nodejs12.x
             MemorySize: 256
             Policies:
@@ -154,6 +162,7 @@ Resources:
                     Properties:
                         Path: '/callback'
                         Method: post
+                        RestApiId: !Ref InboundCallbackApi
 
     Deployment:
         Type: AWS::ApiGatewayV2::Deployment

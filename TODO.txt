@@ -1,6 +1,6 @@
-- Create a error message when persistence fails 10/10/2021
-- Support staging 10/10/2021
-- x Optimise building 12/10/2021 12/10/2021
-- Support callbacks 12/10/2021 
-- Find a way to dynamically add webhook url to mt request 12/10/2021
-- Fix issue with inbound handler returning 500 12/10/2021
+- Create a error message when persistence fails             10/10/2021
+- Support staging                                           10/10/2021
+- x Optimise building                                       12/10/2021 12/10/2021
+- x Support callbacks                                       12/10/2021 
+- x Find a way to dynamically add webhook url to mt request 12/10/2021 13/10/2021
+- x Fix issue with inbound handler returning 500            12/10/2021 13/10/2021

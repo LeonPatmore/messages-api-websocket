@@ -6,6 +6,9 @@ class MessagesApiClient {
     }
 
     async sendV1(body, auth) {
+        console.log(
+            `Sending body [ ${JSON.stringify(body)} ] to V1 messaegs api!`
+        );
         const res = await axios.post(`https://${this.host}/v1/messages`, body, {
             headers: { Authorization: auth },
         });

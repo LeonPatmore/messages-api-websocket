@@ -38,7 +38,12 @@ const messagesApiHost = process.env.MESSAGES_API_HOST;
 console.log(`Messages API host: ${messagesApiHost}`);
 new MessagesApiClientBus(process.env.MESSAGES_API_HOST, eventBus);
 
-const messagesApiMtProcessor = new MessagesApiMtProcessor(eventBus);
+const inboundStage = process.env.INBOUND_STAGE;
+const inboundApiId = process.env.INBOUND_API_ID;
+const messagesApiMtProcessor = new MessagesApiMtProcessor(
+    eventBus,
+    `https://${inboundApiId}.execute-api.${process.env.AWS_REGION}.amazonaws.com/${inboundStage}/callback`
+);
 const messagesApiCallbackProcessor = new MessagesApiCallbackProcessor(eventBus);
 const callbackSender = new CallbackSenderWebsocket(managementApi);
 new CallbackSenderBus(eventBus, callbackSender);

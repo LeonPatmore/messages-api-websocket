@@ -1,7 +1,7 @@
-const { messagesApiMtProcessor } = require('./load-from-environment');
+const { messagesApiMtProcessor } = require('../load-from-environment');
 const {
     FailedToSendMessagesApi,
-} = require('./mt-processor/messages-api-mt-processor');
+} = require('../mt-processor/messages-api-mt-processor');
 
 exports.handler = async (event) => {
     console.log(`Processing event [ ${JSON.stringify(event)} ]`);

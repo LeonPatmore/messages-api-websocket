@@ -14,14 +14,18 @@ class HttpError extends Error {
 
 class FailedToSendMessagesApi extends HttpError {}
 
+const WEBHOOK_VERSION = 'v1';
+
 class MessagesApiMtProcessor {
-    constructor(eventBus) {
+    constructor(eventBus, webhook_url) {
         this.eventBus = eventBus;
+        this.webhook_url = webhook_url;
     }
 
     async process(request) {
+        const requestBody = this.injectWebhookIntoRequest(request.input.body);
         const res = await this.sendRequestToMessagesApi(
-            request.input.body,
+            requestBody,
             request.input.auth
         );
         await this.persistUuid(
@@ -29,6 +33,16 @@ class MessagesApiMtProcessor {
             request.context.connectionId
         );
         return res;
+    }
+
+    injectWebhookIntoRequest(body) {
+        return {
+            ...body,
+            ...{
+                webhook_url: this.webhook_url,
+                webhook_version: WEBHOOK_VERSION,
+            },
+        };
     }
 
     async sendRequestToMessagesApi(body, auth) {
