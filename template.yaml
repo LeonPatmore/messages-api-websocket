@@ -55,7 +55,7 @@ Resources:
             IntegrationResponseKey: $default
             TemplateSelectionExpression: \$default
             ResponseTemplates:
-                '$default': '{"response": $input.json(''$'')}'
+                '$default': "$input.json('$')"
             ApiId: !Ref WebsocketApi
 
     ProcessRoute:
@@ -110,7 +110,7 @@ Resources:
             IntegrationResponseKey: $default
             TemplateSelectionExpression: \$default
             ResponseTemplates:
-                '$default': '{"response": $input.json(''$'')}'
+                '$default': "$input.json('$')"
             ApiId: !Ref WebsocketApi
 
     DisconnectRoute:
@@ -133,6 +133,7 @@ Resources:
     InboundCallbackApi:
         Type: AWS::Serverless::Api
         Properties:
+            Name: messages-api-callback
             StageName: Prod
 
     InboundCallbackFunction:
@@ -168,7 +169,7 @@ Resources:
         Type: AWS::ApiGatewayV2::Deployment
         DependsOn:
             - ProcessRoute
-            - ConnectRouteResponse
+            - ProcessRouteResponse
             - ProcessIntegrationResponse
             - ConnectRoute
             - ConnectRouteResponse

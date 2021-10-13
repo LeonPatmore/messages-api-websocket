@@ -7,10 +7,7 @@ exports.handler = async (event) => {
     console.log(`Processing event [ ${JSON.stringify(event)} ]`);
     try {
         return messagesApiMtProcessor.process(event).then((res) => {
-            return Promise.resolve({
-                httpStatus: res.status,
-                httpBody: res.data,
-            });
+            return res.data;
         });
     } catch (error) {
         return handleError(error);
