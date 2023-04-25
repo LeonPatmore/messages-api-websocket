@@ -38,6 +38,10 @@ The response format is indentical to the messaegs api format, as all HTTP respon
 
 ## Dev Tasks
 
+### Setup
+
+`make install`
+
 ### Testing
 
 `make test`

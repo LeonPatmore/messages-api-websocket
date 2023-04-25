@@ -4,3 +4,4 @@
 - x Support callbacks                                       12/10/2021 13/10/2021
 - x Find a way to dynamically add webhook url to mt request 12/10/2021 13/10/2021
 - x Fix issue with inbound handler returning 500            12/10/2021 13/10/2021
+- Support authentication on connect                         25/04/2023
