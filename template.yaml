@@ -40,6 +40,23 @@ Resources:
         Properties:
             ApiId: !Ref WebsocketApi
             IntegrationType: AWS
+            TemplateSelectionExpression: \$default
+            RequestTemplates:
+                '$default': '{
+                    "context": {
+                        "connectionId": "$context.connectionId"
+                    },
+                    "headers": {
+                        #foreach($param in $input.params().header.keySet())
+                        "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                        #end
+                    },
+                    "queryParams": {
+                        #foreach($param in $input.params().querystring.keySet())
+                        "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                        #end
+                    }
+                }'
             IntegrationUri:
                 Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
     ConnectRouteResponse:
