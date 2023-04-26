@@ -4,9 +4,13 @@ const {
 const {
     PERSIST_EVENT_NAME,
 } = require('../association-persistence/association-persistence-bus');
+const {
+    GET_AUTH_EVENT_NAME,
+} = require('../auth-persistence/auth-persistence-bus');
 
 class HttpError extends Error {
     constructor(status, body) {
+        super(`HTTP error with response code [ ${status} ]`);
         this.status = status;
         this.body = body;
     }
@@ -23,15 +27,18 @@ class MessagesApiMtProcessor {
     }
 
     async process(request) {
-        const requestBody = this.injectWebhookIntoRequest(request.input.body);
-        const res = await this.sendRequestToMessagesApi(
-            requestBody,
-            request.input.auth
-        );
-        await this.persistUuid(
-            res.data.message_uuid,
-            request.context.connectionId
-        );
+        const connectionId = request.context.connectionId;
+        const requestBody = this.injectWebhookIntoRequest(request.input);
+        const auth = await new Promise((resolve, reject) => {
+            this.eventBus.emit(
+                GET_AUTH_EVENT_NAME,
+                connectionId,
+                resolve,
+                reject
+            );
+        });
+        const res = await this.sendRequestToMessagesApi(requestBody, auth);
+        await this.persistUuid(res.data.message_uuid, connectionId);
         return res;
     }
 
@@ -55,11 +62,10 @@ class MessagesApiMtProcessor {
                 reject
             );
         }).catch((error) => {
-            throw error;
-            // throw new FailedToSendMessagesApi(
-            //     error.response.status,
-            //     error.response.data
-            // );
+            throw new FailedToSendMessagesApi(
+                error.response.status,
+                error.response.data
+            );
         });
     }
 
@@ -76,4 +82,4 @@ class MessagesApiMtProcessor {
     }
 }
 
-module.exports = { MessagesApiMtProcessor, FailedToSendMessagesApi };
+module.exports = { MessagesApiMtProcessor, HttpError, FailedToSendMessagesApi };
