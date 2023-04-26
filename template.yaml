@@ -9,6 +9,14 @@ Resources:
                 Type: String
             TableName: Association
 
+    AuthTable:
+        Type: AWS::Serverless::SimpleTable
+        Properties:
+            PrimaryKey:
+                Name: connectionId
+                Type: String
+            TableName: Auth
+
     WebsocketApi:
         Type: AWS::ApiGatewayV2::Api
         Properties:
@@ -35,6 +43,12 @@ Resources:
             Handler: src/lambda-handlers/onConnect.handler
             MemorySize: 256
             Runtime: nodejs12.x
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref AuthTable
+            Environment:
+                Variables:
+                    AUTH_TABLE_NAME: !Ref AuthTable
     ConnectIntegration:
         Type: AWS::ApiGatewayV2::Integration
         Properties:
@@ -44,19 +58,19 @@ Resources:
             RequestTemplates:
                 '$default': '{
                     "context": {
-                        "connectionId": "$context.connectionId"
+                    "connectionId": "$context.connectionId"
                     },
                     "headers": {
-                        #foreach($param in $input.params().header.keySet())
-                        "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
-                        #end
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
                     },
                     "queryParams": {
-                        #foreach($param in $input.params().querystring.keySet())
-                        "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
-                        #end
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
                     }
-                }'
+                    }'
             IntegrationUri:
                 Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
     ConnectRouteResponse:
@@ -97,9 +111,12 @@ Resources:
             Policies:
                 - DynamoDBCrudPolicy:
                       TableName: !Ref AssociationTable
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref AuthTable
             Environment:
                 Variables:
-                    TABLE_NAME: !Ref AssociationTable
+                    ASSOCITATION_TABLE_NAME: !Ref AssociationTable
+                    AUTH_TABLE_NAME: !Ref AuthTable
                     MESSAGES_API_HOST: api.nexmo.com
                     INBOUND_STAGE: Prod
                     INBOUND_API_ID: !Ref InboundCallbackApi
@@ -171,7 +188,7 @@ Resources:
                         Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
             Environment:
                 Variables:
-                    TABLE_NAME: !Ref AssociationTable
+                    ASSOCITATION_TABLE_NAME: !Ref AssociationTable
                     WEBSOCKET_API_ID: !Ref WebsocketApi
                     WEBSOCKET_STAGE: Prod
             Events:

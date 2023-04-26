@@ -42,6 +42,13 @@ The response format is indentical to the messaegs api format, as all HTTP respon
 
 `make install`
 
+Create the file `.env` at the root of the project containing the following:
+
+```
+export AWS_PROFILE=<profile>
+export AWS_REGION=<region>
+```
+
 ### Testing
 
 `make test`

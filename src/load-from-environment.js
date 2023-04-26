@@ -13,6 +13,10 @@ const {
 const MessagesApiCallbackProcessor = require('./callback-processor/messages-api-callback-processor');
 const CallbackSenderWebsocket = require('./callback-sender/callback-sender-websocket');
 const { CallbackSenderBus } = require('./callback-sender/callback-sender-bus');
+const AuthPersistenceDynamo = require('./auth-persistence/auth-persistence-dynamo');
+const {
+    AuthPersistenceBus,
+} = require('./auth-persistence/auth-persistence-bus');
 
 const dynamoDBClient = new AWS.DynamoDB.DocumentClient({
     apiVersion: '2012-08-10',
@@ -26,13 +30,21 @@ const managementApi = new AWS.ApiGatewayManagementApi({
     endpoint: `https://${websocketApiId}.execute-api.${process.env.AWS_REGION}.amazonaws.com/${websocketStage}`,
 });
 
-const tableName = process.env.TABLE_NAME;
-console.log(`Table name: ${tableName}`);
+const associationTableName = process.env.ASSOCITATION_TABLE_NAME;
+console.log(`Association table name: ${associationTableName}`);
 const associationPersistence = new DynamoAssociationPersistence(
-    tableName,
+    associationTableName,
     dynamoDBClient
 );
 new AssociationPersistenceBus(eventBus, associationPersistence);
+
+const authTableName = process.env.AUTH_TABLE_NAME;
+console.log(`Auth table name: ${authTableName}`);
+const authPersistence = new AuthPersistenceDynamo(
+    authTableName,
+    dynamoDBClient
+);
+new AuthPersistenceBus(eventBus, authPersistence);
 
 const messagesApiHost = process.env.MESSAGES_API_HOST;
 console.log(`Messages API host: ${messagesApiHost}`);
@@ -48,4 +60,8 @@ const messagesApiCallbackProcessor = new MessagesApiCallbackProcessor(eventBus);
 const callbackSender = new CallbackSenderWebsocket(managementApi);
 new CallbackSenderBus(eventBus, callbackSender);
 
-module.exports = { messagesApiMtProcessor, messagesApiCallbackProcessor };
+module.exports = {
+    messagesApiMtProcessor,
+    messagesApiCallbackProcessor,
+    eventBus,
+};

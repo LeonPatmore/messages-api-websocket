@@ -1,21 +1,20 @@
 const { messagesApiMtProcessor } = require('../load-from-environment');
-const {
-    FailedToSendMessagesApi,
-} = require('../mt-processor/messages-api-mt-processor');
+const { HttpError } = require('../mt-processor/messages-api-mt-processor');
 
 exports.handler = async (event) => {
     console.log(`Processing event [ ${JSON.stringify(event)} ]`);
-    try {
-        return messagesApiMtProcessor.process(event).then((res) => {
+    return messagesApiMtProcessor
+        .process(event)
+        .then((res) => {
             return res.data;
+        })
+        .catch((err) => {
+            return handleError(err);
         });
-    } catch (error) {
-        return handleError(error);
-    }
 };
 
 function handleError(error) {
-    if (error instanceof FailedToSendMessagesApi) {
+    if (error instanceof HttpError) {
         return {
             operation: 'Sending to messages api failed',
             httpStatus: error.status,
