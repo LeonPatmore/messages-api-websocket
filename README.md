@@ -22,13 +22,11 @@ To make a request to the messages api, simply write a websocket message in the s
 
 ```json
 {
-{
     "channel": "sms",
     "from": "wstest",
     "to": "4412346789",
     "message_type": "text",
     "text": "Leon is cool"
-    }
 }
 ```
 
