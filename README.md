@@ -10,24 +10,24 @@ Messaegs api MT requests to the websocket are proxied to the messages api. Callb
 
 ## API
 
-### Requests
+### Connection Request
 
-Websocket requests should be a JSON with two keys:
+Your connection request should include the `Authorization` header with value `Bearer <message_api_token>`. This will be used as the token for all subsequent requests.
 
--   `auth`: Auth header value.
--   `body`: Messages api request as a JSON. Uses V1 messages api.
+### Sending Messages
+
+To make a request to the messages api, simply write a websocket message in the same format as a messages api request.
 
 **Example**:
 
 ```json
 {
-    "auth": "Basic abc123",
-    "body": {
-        "channel": "sms",
-        "from": "wstest",
-        "to": "4412346789",
-        "message_type": "text",
-        "text": "Leon is cool"
+{
+    "channel": "sms",
+    "from": "wstest",
+    "to": "4412346789",
+    "message_type": "text",
+    "text": "Leon is cool"
     }
 }
 ```
